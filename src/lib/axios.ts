@@ -35,10 +35,8 @@ api.interceptors.response.use(
                 // 6. The assistant retries the original request that failed
                 return api(originalRequest);
             } catch (refreshError) {
-                // If the refresh token itself is invalid, then we give up.
-                console.error("Refresh token is invalid. User must log in again.");
-                // In a real app, we would clear all user state and redirect to /login here.
-                return Promise.reject(refreshError);
+        
+               // return Promise.reject(refreshError);
             }
         }
         
