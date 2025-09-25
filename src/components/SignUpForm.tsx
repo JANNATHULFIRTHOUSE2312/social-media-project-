@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const formSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters."),
@@ -25,6 +27,8 @@ const formSchema = z.object({
 
 export default function SignUpForm() {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { username: "", email: "", password: "" },
@@ -41,24 +45,26 @@ export default function SignUpForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black">
       {/* Signup Card */}
-      <div className="w-full max-w-3xl rounded-lg border bg-card text-card-foreground flex overflow-hidden shadow-lg">
+      <div className="w-full max-w-3xl rounded-xl border bg-card text-card-foreground flex overflow-hidden shadow-xl">
         
-        {/* Left Side */}
-        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-muted text-muted-foreground p-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold">Join Us Today</h2>
-            <p className="text-sm">Create an account to explore all features</p>
+        {/* Left Branding Section */}
+        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-pink-600 to-purple-600 text-white p-10">
+          <div className="text-center space-y-3">
+            <h1 className="text-4xl font-extrabold tracking-tight">SPOYLYTE</h1>
+            <p className="text-sm opacity-90">
+              Join us & unlock premium experiences
+            </p>
           </div>
         </div>
 
         {/* Right Side Form */}
-        <div className="w-full md:w-1/2 p-8">
+        <div className="w-full md:w-1/2 p-8 bg-background">
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold">Sign Up</h3>
             <p className="text-sm text-muted-foreground">
-              Fill in your details to get started
+              Create your <span className="font-semibold text-pink-600">SPOYLYTE</span> account
             </p>
           </div>
 
@@ -94,21 +100,30 @@ export default function SignUpForm() {
                 )}
               />
 
-              {/* Password */}
+              {/* Password with Eye Toggle */}
               <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        className="rounded-lg"
-                        {...field}
-                      />
-                    </FormControl>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          className="rounded-lg pr-10"
+                          {...field}
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

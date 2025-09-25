@@ -47,24 +47,26 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black">
       {/* Login Card */}
-      <div className="w-full max-w-3xl rounded-lg border bg-card text-card-foreground flex overflow-hidden shadow-lg">
+      <div className="w-full max-w-3xl rounded-xl border bg-card text-card-foreground flex overflow-hidden shadow-xl">
         
-        {/* Left Side */}
-        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-muted text-muted-foreground p-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold">Welcome Back</h2>
-            <p className="text-sm">Log in to continue to your account</p>
+        {/* Left Branding Section */}
+        <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-pink-600 to-purple-600 text-white p-10">
+          <div className="text-center space-y-3">
+            <h1 className="text-4xl font-extrabold tracking-tight">SPOYLYTE</h1>
+            <p className="text-sm opacity-90">
+              Discover. Watch. Experience.
+            </p>
           </div>
         </div>
 
         {/* Right Side Form */}
-        <div className="w-full md:w-1/2 p-8">
+        <div className="w-full md:w-1/2 p-8 bg-background">
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold">Log In</h3>
             <p className="text-sm text-muted-foreground">
-              Access your dashboard securely
+              Welcome back to <span className="font-semibold text-pink-600">SPOYLYTE</span>
             </p>
           </div>
 
@@ -78,7 +80,11 @@ export default function LoginForm() {
                   <FormItem>
                     <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="you@example.com" className="rounded-lg" {...field} />
+                      <Input
+                        placeholder="you@example.com"
+                        className="rounded-lg"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -12,12 +12,30 @@ import { toast } from "sonner";
 import { ShoppingBag, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+// ---------------- Types ----------------
+interface Video {
+  _id: string;
+  title: string;
+  thumbnailUrl: string;
+  description?: string;
+  purchasedAt?: string;
+}
+
+interface Order {
+  _id: string;
+  createdAt: string;
+  items?: {
+    videoId: Video;
+  }[];
+  videos?: Video[];
+}
+
 export default function ProfilePage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  const [watchlist, setWatchlist] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [watchlist, setWatchlist] = useState<Video[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Banner color with persistence
@@ -53,7 +71,7 @@ export default function ProfilePage() {
 
           setWatchlist(watchlistRes.data.videos || []);
           setOrders(ordersRes.data.orders || ordersRes.data || []);
-        } catch (error) {
+        } catch {
           toast.error("Could not load your profile data.");
         } finally {
           setLoading(false);
@@ -68,20 +86,20 @@ export default function ProfilePage() {
   }
 
   // --- Collect unique purchased videos with their order date ---
-  const allPurchased = orders.flatMap((order: any) =>
+  const allPurchased: Video[] = orders.flatMap((order) =>
     order.items
-      ? order.items.map((item: any) => ({
+      ? order.items.map((item) => ({
           ...item.videoId,
           purchasedAt: order.createdAt,
         }))
-      : (order.videos || []).map((video: any) => ({
+      : (order.videos || []).map((video) => ({
           ...video,
           purchasedAt: order.createdAt,
         }))
   );
 
-  const uniquePurchasedVideos = Array.from(
-    new Map(allPurchased.map((video: any) => [video._id, video])).values()
+  const uniquePurchasedVideos: Video[] = Array.from(
+    new Map(allPurchased.map((video) => [video._id, video])).values()
   );
 
   return (
@@ -167,7 +185,7 @@ export default function ProfilePage() {
             <p className="text-center">Loading watchlist...</p>
           ) : watchlist.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {watchlist.map((video: any) => (
+              {watchlist.map((video) => (
                 <VideoCard key={video._id} video={video} />
               ))}
             </div>
@@ -184,7 +202,7 @@ export default function ProfilePage() {
             <p className="text-center">Loading purchases...</p>
           ) : uniquePurchasedVideos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {uniquePurchasedVideos.map((video: any) => (
+              {uniquePurchasedVideos.map((video) => (
                 <div key={video._id} className="relative group">
                   {/* Wrap VideoCard */}
                   <VideoCard video={video} />

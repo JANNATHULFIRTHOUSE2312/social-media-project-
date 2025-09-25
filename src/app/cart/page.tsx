@@ -14,7 +14,7 @@ import api from "@/lib/axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import VideoCard from "@/components/VideoCard";
 
 export default function CartPage() {
   const { cart, removeFromCart, cartTotal, clearCart } = useCart();
@@ -33,13 +33,10 @@ export default function CartPage() {
   };
 
   return (
-    
     <div className="container mx-auto px-4 py-12">
       {/* Title */}
-      
       <h1 className="text-4xl font-extrabold mb-12 text-center bg-gradient-to-r from-pink-500 to-pink-700 bg-clip-text text-transparent drop-shadow-sm">
-        <span >🛒</span>
-         Your Shopping Cart
+        🛒Your Shopping Cart
       </h1>
 
       {cart.length > 0 ? (
@@ -49,33 +46,20 @@ export default function CartPage() {
             {cart.map((item) => (
               <Card
                 key={item._id}
-                className="group flex flex-col md:flex-row items-start md:items-center p-6 rounded-2xl shadow-md border border-gray-100 bg-white/70 dark:bg-black/40 backdrop-blur-sm transition-all hover:shadow-xl hover:border-pink-200"
+                className="p-4 rounded-2xl shadow-md border border-gray-100 bg-white/70 dark:bg-black/40 backdrop-blur-sm transition-all hover:shadow-xl hover:border-pink-200"
               >
-                {/* Thumbnail */}
-                <div className="relative w-full md:w-48 h-32 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
-                  <Image
-                    src={item.videoId.thumbnailUrl}
-                    alt={item.videoId.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, 192px"
-                  />
+                {/* Smaller VideoCard */}
+                <div className="max-w-xs cart-video">
+                  <VideoCard video={item.videoId} />
                 </div>
 
-                {/* Title + Info */}
-                <div className="flex flex-col justify-between md:ml-6 flex-grow mt-4 md:mt-0 w-full">
-                  <div>
-                    <h2 className="font-bold text-xl text-gray-900 dark:text-white leading-snug line-clamp-2">
-                      {item.videoId.title}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 capitalize">
-                      {item.purchaseType}
-                    </p>
-                  </div>
-
-                  {/* Price + Remove */}
-                  <div className="flex items-center justify-between mt-5">
-                    <p className="font-extrabold text-2xl text-pink-600">
+                {/* Purchase Info + Remove */}
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                    {item.purchaseType}
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="font-extrabold text-xl text-pink-600">
                       ₹{item.price.toFixed(2)}
                     </p>
                     <Button
@@ -85,7 +69,7 @@ export default function CartPage() {
                       className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-100/60 hover:text-red-700 rounded-full px-4 py-2 transition"
                     >
                       <Trash2 className="h-4 w-4" />
-                      <span>Remove From Cart</span>
+                      <span>Remove</span>
                     </Button>
                   </div>
                 </div>
@@ -128,8 +112,8 @@ export default function CartPage() {
             Your cart is empty 🛍️
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
-            Looks like you haven’t added any premium videos yet.  
-            Browse our collection and discover your next favorite!
+            Looks like you haven’t added any premium videos yet. Browse our
+            collection and discover your next favorite!
           </p>
           <Link href="/">
             <Button
@@ -141,6 +125,13 @@ export default function CartPage() {
           </Link>
         </div>
       )}
+
+      {/* Hide cart button inside VideoCard ONLY in CartPage */}
+      <style jsx>{`
+        .cart-video :global(.cart-btn) {
+          display: none !important;
+        }
+      `}</style>
     </div>
   );
 }
