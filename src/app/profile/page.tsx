@@ -10,13 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ShoppingBag, Heart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProfilePage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  const [watchlist, setWatchlist] = useState([]);
-  const [orderCount, setOrderCount] = useState(0);
+  const [watchlist, setWatchlist] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Banner color with persistence
@@ -34,6 +35,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
+      toast.error("You must be logged in to view this page.");
       router.push("/login");
     }
   }, [user, isAuthLoading, router]);
@@ -43,8 +45,14 @@ export default function ProfilePage() {
       if (user) {
         try {
           setLoading(true);
-          const watchlistRes = await api.get("/watchlist");
+
+          const [watchlistRes, ordersRes] = await Promise.all([
+            api.get("/watchlist"),
+            api.get("/orders").catch(() => ({ data: [] })),
+          ]);
+
           setWatchlist(watchlistRes.data.videos || []);
+          setOrders(ordersRes.data.orders || ordersRes.data || []);
         } catch (error) {
           toast.error("Could not load your profile data.");
         } finally {
@@ -58,6 +66,23 @@ export default function ProfilePage() {
   if (isAuthLoading || !user) {
     return <div className="container text-center py-10">Loading profile...</div>;
   }
+
+  // --- Collect unique purchased videos with their order date ---
+  const allPurchased = orders.flatMap((order: any) =>
+    order.items
+      ? order.items.map((item: any) => ({
+          ...item.videoId,
+          purchasedAt: order.createdAt,
+        }))
+      : (order.videos || []).map((video: any) => ({
+          ...video,
+          purchasedAt: order.createdAt,
+        }))
+  );
+
+  const uniquePurchasedVideos = Array.from(
+    new Map(allPurchased.map((video: any) => [video._id, video])).values()
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -83,7 +108,7 @@ export default function ProfilePage() {
             <p className="text-muted-foreground">{user.email}</p>
           </div>
 
-          {/* Single Circle Color Picker */}
+          {/* Color Picker */}
           <label className="h-10 w-10 rounded-full border cursor-pointer overflow-hidden relative">
             <input
               type="color"
@@ -103,20 +128,28 @@ export default function ProfilePage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <Card className="hover:border-primary transition-colors shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Videos in Watchlist</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Videos in Watchlist
+            </CardTitle>
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? "..." : watchlist.length}</div>
+            <div className="text-2xl font-bold">
+              {loading ? "..." : watchlist.length}
+            </div>
           </CardContent>
         </Card>
         <Card className="hover:border-primary transition-colors shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Purchased Videos</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Purchased Videos
+            </CardTitle>
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? "..." : orderCount}</div>
+            <div className="text-2xl font-bold">
+              {loading ? "..." : uniquePurchasedVideos.length}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -125,12 +158,11 @@ export default function ProfilePage() {
       <Tabs defaultValue="watchlist" className="w-full">
         <TabsList className="justify-center">
           <TabsTrigger value="watchlist">My Watchlist</TabsTrigger>
-          <TabsTrigger value="orders" disabled>
-            My Orders
-          </TabsTrigger>
+          <TabsTrigger value="orders">My Orders</TabsTrigger>
         </TabsList>
+
+        {/* Watchlist */}
         <TabsContent value="watchlist" className="mt-6">
-          <h2 className="text-2xl font-semibold mb-4 text-center">Saved for Later</h2>
           {loading ? (
             <p className="text-center">Loading watchlist...</p>
           ) : watchlist.length > 0 ? (
@@ -142,6 +174,42 @@ export default function ProfilePage() {
           ) : (
             <p className="text-muted-foreground text-center">
               Your watchlist is empty.
+            </p>
+          )}
+        </TabsContent>
+
+        {/* Orders */}
+        <TabsContent value="orders" className="mt-6">
+          {loading ? (
+            <p className="text-center">Loading purchases...</p>
+          ) : uniquePurchasedVideos.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {uniquePurchasedVideos.map((video: any) => (
+                <div key={video._id} className="relative group">
+                  {/* Wrap VideoCard */}
+                  <VideoCard video={video} />
+                  {/* Date badge */}
+                  {video.purchasedAt && (
+                    <Badge className="absolute top-2 left-2 bg-pink-600 text-white text-xs shadow-sm">
+                      {new Date(video.purchasedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </Badge>
+                  )}
+                  {/* Hide cart button only in orders */}
+                  <style jsx>{`
+                    .group :global(button[aria-label="Add to cart"]) {
+                      display: none !important;
+                    }
+                  `}</style>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-center">
+              You haven’t purchased any videos yet.
             </p>
           )}
         </TabsContent>
