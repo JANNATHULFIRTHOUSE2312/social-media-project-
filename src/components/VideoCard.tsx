@@ -17,7 +17,7 @@ type Video = {
   title: string;
   thumbnailUrl: string;
   previewUrl?: string;
-  views: number;
+  views?: number;
 };
 
 export default function VideoCard({ video }: { video: Video }) {
@@ -106,7 +106,7 @@ export default function VideoCard({ video }: { video: Video }) {
             {video.title}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            {formatViews(video.views)} views
+            {formatViews(video?.views ?? 0)} views
           </p>
         </div>
 

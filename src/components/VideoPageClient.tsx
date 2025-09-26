@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 
-interface Video {
+ export interface Video {
   _id: string;
   title: string;
   description: string;
@@ -20,11 +20,11 @@ interface Video {
   thumbnailUrl: string;
   category: string;
   createdAt: string;
-  views: number;
+  views?: number;
   likes: string[];
 }
 
-interface Watchlist {
+ export interface Watchlist {
   videos: Video[];
 }
 
@@ -33,7 +33,7 @@ export default function VideoPageClient({
   watchlist: initialWatchlist,
 }: {
   video: Video;
-  watchlist: Watchlist;
+  watchlist?: Watchlist;
 }) {
   const { user } = useAuth();
 
@@ -46,9 +46,12 @@ export default function VideoPageClient({
   useEffect(() => {
     if (user) {
       setIsLiked(initialVideo.likes.includes(user._id));
-      setIsInWatchlist(
+   if (initialWatchlist?.videos)
+   {
+       setIsInWatchlist(
         initialWatchlist.videos.some((v) => v._id === initialVideo._id)
       );
+   }
     }
   }, [user, initialVideo, initialWatchlist]);
 
@@ -126,7 +129,7 @@ export default function VideoPageClient({
             <div className="flex flex-wrap items-center gap-4">
               <span className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
-                {initialVideo.views.toLocaleString()} views
+                {initialVideo?.views?.toLocaleString()} views
               </span>
               <Badge variant="secondary">{initialVideo.category}</Badge>
               <span>
@@ -204,7 +207,7 @@ export default function VideoPageClient({
                     {video.title}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    {video.views.toLocaleString()} views
+                    {video?.views?.toLocaleString()} views
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(video.createdAt).toLocaleDateString()}

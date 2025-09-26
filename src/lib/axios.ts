@@ -2,7 +2,7 @@ import axios from "axios";
 
 // 1. Create a new instance of Axios with our backend's base URL
 const api = axios.create({
-  baseURL: "https://fullstack-production-c7a0.up.railway.app/api/v1",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   // 2. This is CRUCIAL for sending cookies
   withCredentials: true,
 });

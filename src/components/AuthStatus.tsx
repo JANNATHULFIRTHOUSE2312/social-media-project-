@@ -24,7 +24,7 @@ export default function AuthStatus() {
   const handleLogout = async () => {
     try {
       // Call the backend logout endpoint (optional, but good practice)
-      await axios.post("https://fullstack-production-c7a0.up.railway.app/api/v1/users/logout");
+      await axios.post("process.env.NEXT_PUBLIC_API_BASE_URL/users/logout");
       
       // The MOST IMPORTANT step: remove the token from the browser
       localStorage.removeItem("accessToken");
