@@ -14,7 +14,7 @@ import { ThemeProvider } from "next-themes";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "VidStream",
+  title: "SPOTLYTE",
   description: "The best place to share and watch premium videos.",
 };
 
