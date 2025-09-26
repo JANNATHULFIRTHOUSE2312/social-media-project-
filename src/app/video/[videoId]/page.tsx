@@ -12,7 +12,7 @@ const VideoPage = async ({ params }: { params: { videoId: string } }) => {
       const token = cookieStore.get('accessToken')?.value;
       
       return axios.create({
-          baseURL: 'http://localhost:8000/api/v1',
+          baseURL: 'https://fullstack-production-c7a0.up.railway.app/api/v1',
           headers: { Cookie: token ? `accessToken=${token}` : '' }
       });
   };
