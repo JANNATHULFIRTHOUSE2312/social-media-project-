@@ -41,8 +41,13 @@ export default function LoginForm() {
       toast.success("Logged in successfully!");
       login(response.data);
       router.push("/");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login failed.");
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "response" in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || "Login failed.");
+      } else {
+        toast.error("Login failed.");
+      }
     }
   }
 
@@ -50,14 +55,11 @@ export default function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black">
       {/* Login Card */}
       <div className="w-full max-w-3xl rounded-xl border bg-card text-card-foreground flex overflow-hidden shadow-xl">
-        
         {/* Left Branding Section */}
         <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-pink-600 to-purple-600 text-white p-10">
           <div className="text-center space-y-3">
             <h1 className="text-4xl font-extrabold tracking-tight">SPOYLYTE</h1>
-            <p className="text-sm opacity-90">
-              Discover. Watch. Experience.
-            </p>
+            <p className="text-sm opacity-90">Discover. Watch. Experience.</p>
           </div>
         </div>
 
@@ -66,7 +68,8 @@ export default function LoginForm() {
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold">Log In</h3>
             <p className="text-sm text-muted-foreground">
-              Welcome back to <span className="font-semibold text-pink-600">SPOYLYTE</span>
+              Welcome back to{" "}
+              <span className="font-semibold text-pink-600">SPOYLYTE</span>
             </p>
           </div>
 

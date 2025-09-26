@@ -1,5 +1,4 @@
 // src/components/VideoPageClient.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,37 +11,55 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
+
+interface Video {
+  _id: string;
+  title: string;
+  description: string;
+  youtubeVideoId: string;
+  thumbnailUrl: string;
+  category: string;
+  createdAt: string;
+  views: number;
+  likes: string[];
+}
+
+interface Watchlist {
+  videos: Video[];
+}
 
 export default function VideoPageClient({
   video: initialVideo,
   watchlist: initialWatchlist,
 }: {
-  video: any;
-  watchlist: any;
+  video: Video;
+  watchlist: Watchlist;
 }) {
   const { user } = useAuth();
 
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialVideo.likes.length);
   const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [recommended, setRecommended] = useState<any[]>([]);
+  const [recommended, setRecommended] = useState<Video[]>([]);
 
+  // set like/watchlist state when user or video changes
   useEffect(() => {
     if (user) {
       setIsLiked(initialVideo.likes.includes(user._id));
       setIsInWatchlist(
-        initialWatchlist.videos.some((v: any) => v._id === initialVideo._id)
+        initialWatchlist.videos.some((v) => v._id === initialVideo._id)
       );
     }
   }, [user, initialVideo, initialWatchlist]);
 
-  // Fetch recommended videos
+  // fetch recommended videos
   useEffect(() => {
     const fetchRecommended = async () => {
       try {
         const res = await api.get("/videos?limit=10&sortBy=views");
         setRecommended(res.data.videos || []);
-      } catch (err) {
+      } catch {
         console.error("Failed to load recommended videos");
       }
     };
@@ -59,13 +76,11 @@ export default function VideoPageClient({
     const originalLikeCount = likeCount;
 
     setIsLiked((prev) => !prev);
-    setLikeCount((prev: number) =>
-      originalIsLiked ? prev - 1 : prev + 1
-    );
+    setLikeCount((prev) => (originalIsLiked ? prev - 1 : prev + 1));
 
     try {
       await api.post(`/videos/${initialVideo._id}/toggle-like`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update like status.");
       setIsLiked(originalIsLiked);
       setLikeCount(originalLikeCount);
@@ -86,7 +101,7 @@ export default function VideoPageClient({
           ? "Removed from watchlist"
           : "Added to watchlist"
       );
-    } catch (error) {
+    } catch {
       toast.error("Failed to update watchlist.");
       setIsInWatchlist(originalIsInWatchlist);
     }
@@ -115,7 +130,9 @@ export default function VideoPageClient({
                 {initialVideo.views.toLocaleString()} views
               </span>
               <Badge variant="secondary">{initialVideo.category}</Badge>
-              <span>{new Date(initialVideo.createdAt).toLocaleDateString()}</span>
+              <span>
+                {new Date(initialVideo.createdAt).toLocaleDateString()}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -173,11 +190,15 @@ export default function VideoPageClient({
                 className="flex gap-3 group"
               >
                 <div className="w-40 aspect-video rounded-md overflow-hidden bg-muted flex-shrink-0">
-                  <img
-                    src={video.thumbnailUrl}
-                    alt={video.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
+                  <div className="relative w-full h-full">
+  <Image
+    src={video.thumbnailUrl}
+    alt={video.title}
+    fill
+    unoptimized // 👈 add this to avoid SSL errors for YouTube
+    className="object-cover group-hover:scale-105 transition-transform"
+  />
+</div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium line-clamp-2 group-hover:text-primary">

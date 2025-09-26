@@ -9,8 +9,18 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useRef } from "react";
+import Image from "next/image";
 
-export default function VideoCard({ video }: { video: any }) {
+
+type Video = {
+  _id: string;
+  title: string;
+  thumbnailUrl: string;
+  previewUrl?: string;
+  views: number;
+};
+
+export default function VideoCard({ video }: { video: Video }) {
   const { user } = useAuth();
   const { fetchCart } = useCart();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -28,8 +38,13 @@ export default function VideoCard({ video }: { video: any }) {
       await api.post("/cart/add", { videoId: video._id, purchaseType: "buy" });
       toast.success(`"${video.title}" added to your cart!`);
       fetchCart();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Could not add to cart.");
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "response" in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || "Could not add to cart.");
+      } else {
+        toast.error("Could not add to cart.");
+      }
     }
   };
 
@@ -56,11 +71,14 @@ export default function VideoCard({ video }: { video: any }) {
         }}
       >
         {/* Thumbnail */}
-        <img
-          src={video.thumbnailUrl}
-          alt={video.title}
-          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-        />
+       <Image
+  src={video.thumbnailUrl}
+  alt={video.title}
+  fill
+  sizes="(max-width: 768px) 100vw, 50vw"
+  className="object-cover transition-transform duration-300 group-hover:scale-105"
+/>
+
 
         {/* Video preview */}
         {video.previewUrl && (

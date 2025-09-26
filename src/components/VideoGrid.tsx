@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import VideoCard from "@/components/VideoCard";
 import api from "@/lib/axios";
@@ -12,8 +11,16 @@ interface VideoGridProps {
   sortBy: string;
 }
 
+export type Video = {
+  _id: string;
+  title: string;
+  thumbnailUrl: string;
+  previewUrl?: string;
+  views: number;
+};
+
 export default function VideoGrid({ searchTerm, category, sortBy }: VideoGridProps) {
-  const [videos, setVideos] = useState<any[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -47,20 +54,19 @@ export default function VideoGrid({ searchTerm, category, sortBy }: VideoGridPro
 
         if (isNewSearch) {
           setVideos(data.videos || []);
+          setPage(2); // reset page to 2 after a fresh search
         } else {
           setVideos((prev) => {
             const existingIds = new Set(prev.map((v) => v._id));
             const newVideos = (data.videos || []).filter(
-              (video: any) => !existingIds.has(video._id)
+              (video: Video) => !existingIds.has(video._id)
             );
             return [...prev, ...newVideos];
           });
+          setPage(pageToFetch + 1);
         }
 
         setHasNextPage(data.hasNextPage);
-        if (data.hasNextPage) {
-          setPage(pageToFetch + 1);
-        }
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
@@ -72,7 +78,7 @@ export default function VideoGrid({ searchTerm, category, sortBy }: VideoGridPro
 
   useEffect(() => {
     fetchVideos(true);
-  }, [debouncedSearchTerm, category, sortBy]);
+  }, [debouncedSearchTerm, category, sortBy, fetchVideos]);
 
   useEffect(() => {
     if (inView && !loading && hasNextPage) {
@@ -82,21 +88,25 @@ export default function VideoGrid({ searchTerm, category, sortBy }: VideoGridPro
 
   return (
     <div>
+      {/* Video Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {videos.map((video: any) => (
+        {videos.map((video: Video) => (
           <VideoCard key={video._id} video={video} />
         ))}
       </div>
 
+      {/* Infinite Scroll Trigger */}
       <div ref={ref} className="h-20 flex items-center justify-center">
         {loading && <p className="text-center">Loading more videos...</p>}
         {!loading && !hasNextPage && videos.length > 0 && (
           <p className="text-center text-muted-foreground">
-            You've reached the end!
+            You&apos;ve reached the end!
           </p>
         )}
         {!loading && videos.length === 0 && (
-          <p>No videos found. Try adjusting your search or filters.</p>
+          <p className="text-center text-muted-foreground">
+            No videos found. Try adjusting your search or filters.
+          </p>
         )}
       </div>
     </div>

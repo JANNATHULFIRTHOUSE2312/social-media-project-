@@ -39,8 +39,13 @@ export default function SignUpForm() {
       await api.post("/users/register", values);
       toast.success("Account created successfully! Please log in.");
       router.push("/login");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed.");
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "response" in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || "Registration failed.");
+      } else {
+        toast.error("Registration failed.");
+      }
     }
   }
 
@@ -48,7 +53,6 @@ export default function SignUpForm() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black">
       {/* Signup Card */}
       <div className="w-full max-w-3xl rounded-xl border bg-card text-card-foreground flex overflow-hidden shadow-xl">
-        
         {/* Left Branding Section */}
         <div className="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-pink-600 to-purple-600 text-white p-10">
           <div className="text-center space-y-3">
@@ -64,7 +68,9 @@ export default function SignUpForm() {
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold">Sign Up</h3>
             <p className="text-sm text-muted-foreground">
-              Create your <span className="font-semibold text-pink-600">SPOYLYTE</span> account
+              Create your{" "}
+              <span className="font-semibold text-pink-600">SPOYLYTE</span>{" "}
+              account
             </p>
           </div>
 
@@ -78,7 +84,11 @@ export default function SignUpForm() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="yourname" className="rounded-lg" {...field} />
+                      <Input
+                        placeholder="yourname"
+                        className="rounded-lg"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -93,7 +103,11 @@ export default function SignUpForm() {
                   <FormItem>
                     <FormLabel>Email Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="you@example.com" className="rounded-lg" {...field} />
+                      <Input
+                        placeholder="you@example.com"
+                        className="rounded-lg"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

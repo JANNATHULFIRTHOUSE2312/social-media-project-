@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -6,7 +5,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
     ],
+    unoptimized: process.env.NODE_ENV === "development", // 👈 only in dev
   },
 };
 
