@@ -19,6 +19,7 @@ interface Video {
   thumbnailUrl: string;
   description?: string;
   purchasedAt?: string;
+  views?: number; // ✅ Added views as optional
 }
 
 interface Order {
@@ -186,7 +187,10 @@ export default function ProfilePage() {
           ) : watchlist.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {watchlist.map((video) => (
-                <VideoCard key={video._id} video={video} />
+                <VideoCard
+                  key={video._id}
+                  video={{ ...video, views: video.views ?? 0 }} // ✅ ensure views is passed
+                />
               ))}
             </div>
           ) : (
@@ -205,7 +209,7 @@ export default function ProfilePage() {
               {uniquePurchasedVideos.map((video) => (
                 <div key={video._id} className="relative group">
                   {/* Wrap VideoCard */}
-                  <VideoCard video={video} />
+                  <VideoCard video={{ ...video, views: video.views ?? 0 }} />
                   {/* Date badge */}
                   {video.purchasedAt && (
                     <Badge className="absolute top-2 left-2 bg-pink-600 text-white text-xs shadow-sm">

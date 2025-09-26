@@ -1,4 +1,3 @@
-// src/components/VideoPageClient.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -191,14 +190,14 @@ export default function VideoPageClient({
               >
                 <div className="w-40 aspect-video rounded-md overflow-hidden bg-muted flex-shrink-0">
                   <div className="relative w-full h-full">
-  <Image
-    src={video.thumbnailUrl}
-    alt={video.title}
-    fill
-    unoptimized // 👈 add this to avoid SSL errors for YouTube
-    className="object-cover group-hover:scale-105 transition-transform"
-  />
-</div>
+                    <Image
+                      src={video.thumbnailUrl}
+                      alt={video.title}
+                      fill
+                      unoptimized // remove if you add i.ytimg.com in next.config.js
+                      className="object-cover group-hover:scale-105 transition-transform"
+                    />
+                  </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium line-clamp-2 group-hover:text-primary">
