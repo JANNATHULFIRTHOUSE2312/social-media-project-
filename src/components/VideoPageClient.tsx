@@ -12,7 +12,10 @@ import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 
- export interface Video {
+// ✅ import the CommentSection
+import CommentSection from "@/components/CommentSection";
+
+export interface Video {
   _id: string;
   title: string;
   description: string;
@@ -24,7 +27,7 @@ import Image from "next/image";
   likes: string[];
 }
 
- export interface Watchlist {
+export interface Watchlist {
   videos: Video[];
 }
 
@@ -42,20 +45,17 @@ export default function VideoPageClient({
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [recommended, setRecommended] = useState<Video[]>([]);
 
-  // set like/watchlist state when user or video changes
   useEffect(() => {
     if (user) {
       setIsLiked(initialVideo.likes.includes(user._id));
-   if (initialWatchlist?.videos)
-   {
-       setIsInWatchlist(
-        initialWatchlist.videos.some((v) => v._id === initialVideo._id)
-      );
-   }
+      if (initialWatchlist?.videos) {
+        setIsInWatchlist(
+          initialWatchlist.videos.some((v) => v._id === initialVideo._id)
+        );
+      }
     }
   }, [user, initialVideo, initialWatchlist]);
 
-  // fetch recommended videos
   useEffect(() => {
     const fetchRecommended = async () => {
       try {
@@ -179,6 +179,10 @@ export default function VideoPageClient({
               </p>
             </CardContent>
           </Card>
+
+          {/* ✅ Comment Section */}
+          <CommentSection videoId={initialVideo._id} />
+
         </div>
 
         {/* Sidebar: Recommended Videos */}
@@ -197,7 +201,7 @@ export default function VideoPageClient({
                       src={video.thumbnailUrl}
                       alt={video.title}
                       fill
-                      unoptimized // remove if you add i.ytimg.com in next.config.js
+                      unoptimized
                       className="object-cover group-hover:scale-105 transition-transform"
                     />
                   </div>
